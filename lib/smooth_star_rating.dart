@@ -15,8 +15,12 @@ class SmoothStarRating extends StatelessWidget {
   final bool allowHalfRating;
   final IconData filledIconData;
   final IconData halfFilledIconData;
-  final IconData
-      defaultIconData; //this is needed only when having fullRatedIconData && halfRatedIconData
+  final IconData defaultIconData; //this is needed only when having fullRatedIconData && halfRatedIconData
+
+  final Widget defaultWidget;
+
+  final Widget filledWidget;
+
   final double spacing;
   SmoothStarRating({
     this.starCount = 5,
@@ -29,15 +33,17 @@ class SmoothStarRating extends StatelessWidget {
     this.size = 25,
     this.filledIconData,
     this.halfFilledIconData,
-    this.allowHalfRating = true,
+    this.allowHalfRating = true, this.defaultWidget, this.filledWidget,
   }) {
     assert(this.rating != null);
   }
 
   Widget buildStar(BuildContext context, int index) {
-    Icon icon;
+    Widget icon;
+
     if (index >= rating) {
-      icon = new Icon(
+
+      icon =  defaultWidget != null ? defaultWidget: new Icon(
         defaultIconData != null ? defaultIconData : Icons.star_border,
         color: borderColor ?? Theme.of(context).primaryColor,
         size: size,
@@ -50,29 +56,17 @@ class SmoothStarRating extends StatelessWidget {
         size: size,
       );
     } else {
-      icon = new Icon(
+      icon = filledWidget != null ? filledWidget:  new Icon(
         filledIconData != null ? filledIconData : Icons.star,
         color: color ?? Theme.of(context).primaryColor,
         size: size,
       );
+
     }
 
     return new GestureDetector(
       onTap: () {
         if (this.onRatingChanged != null) onRatingChanged(index + 1.0);
-      },
-      onHorizontalDragUpdate: (dragDetails) {
-        RenderBox box = context.findRenderObject();
-        var _pos = box.globalToLocal(dragDetails.globalPosition);
-        var i = _pos.dx / size;
-        var newRating = allowHalfRating ? i : i.round().toDouble();
-        if (newRating > starCount) {
-          newRating = starCount.toDouble();
-        }
-        if (newRating < 0) {
-          newRating = 0.0;
-        }
-        if (this.onRatingChanged != null) onRatingChanged(newRating);
       },
       child: icon,
     );
